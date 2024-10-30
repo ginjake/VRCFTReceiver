@@ -213,8 +213,8 @@ public class Driver : IInputDriver, IDisposable
     mouth.LipUpperRightRaise = OSCClient.FTData[Expressions.MouthUpperUpRight];
     mouth.LipLowerLeftRaise = OSCClient.FTData[Expressions.MouthLowerDownLeft];
     mouth.LipLowerRightRaise = OSCClient.FTData[Expressions.MouthLowerDownRight];
-    mouth.MouthPoutLeft = OSCClient.FTData[Expressions.LipPuckerLowerLeft] - OSCClient.FTData[Expressions.LipPuckerUpperLeft];
-    mouth.MouthPoutRight = OSCClient.FTData[Expressions.LipPuckerLowerRight] - OSCClient.FTData[Expressions.LipPuckerUpperRight];
+    mouth.MouthPoutLeft = OSCClient.FTData[Expressions.LipPuckerUpperLeft] - OSCClient.FTData[Expressions.LipPuckerLowerLeft];
+    mouth.MouthPoutRight = OSCClient.FTData[Expressions.LipPuckerUpperRight] - OSCClient.FTData[Expressions.LipPuckerLowerRight];
     mouth.LipUpperHorizontal = OSCClient.FTData[Expressions.MouthUpperX];
     mouth.LipLowerHorizontal = OSCClient.FTData[Expressions.MouthLowerX];
     mouth.LipTopLeftOverturn = OSCClient.FTData[Expressions.LipFunnelUpperLeft];
