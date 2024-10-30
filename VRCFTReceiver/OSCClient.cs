@@ -24,11 +24,17 @@ namespace VRCFTReceiver
 
     private const string EYE_PREFIX = "/avatar/parameters/v2/Eye";
     private const string MOUTH_PREFIX = "/avatar/parameters/v2/Mouth";
+    private const int RECONNECT_ATTEMPT_DELAY_MS = 5000;
+    private DateTime _lastReconnectAttempt;
+    private static IPAddress _ip;
+    private static int _port;
 
     public OSCClient(IPAddress ip, int? port = null)
     {
-      var listenPort = port ?? DefaultPort;
-      receiver = new OscReceiver(ip, listenPort);
+      _ip = ip;
+      _port = port ?? DefaultPort;
+
+      receiver = new OscReceiver(_ip, _port);
 
       for (int i = 0; i < (int)ExpressionIndex.Count; i++)
       {
@@ -55,8 +61,11 @@ namespace VRCFTReceiver
         {
           if (receiver.State != OscSocketState.Connected)
           {
-            UniLog.Log($"[VRCFTReceiver] OscReceiver state {receiver.State}, breaking..");
-            break;
+            if (DateTime.UtcNow - _lastReconnectAttempt > TimeSpan.FromMilliseconds(RECONNECT_ATTEMPT_DELAY_MS))
+            {
+              AttemptReconnect();
+            }
+            continue;
           }
 
           while (receiver.TryReceive(out OscPacket packet))
@@ -81,10 +90,27 @@ namespace VRCFTReceiver
         catch (Exception ex)
         {
           UniLog.Log($"[VRCFTReceiver] Error in OSCClient ListenLoop: {ex.Message}");
+          Thread.Sleep(100);
         }
       }
 
       UniLog.Log("[VRCFTReceiver] OSCClient ListenLoop ended");
+    }
+
+    private void AttemptReconnect()
+    {
+      try
+      {
+        _lastReconnectAttempt = DateTime.UtcNow;
+        receiver?.Close();
+        receiver = new OscReceiver(_ip, _port);
+        receiver.Connect();
+        UniLog.Log("[VRCFTReceiver] Successfully reconnected OSC receiver");
+      }
+      catch (Exception ex)
+      {
+        UniLog.Error($"[VRCFTReceiver] Failed to reconnect OSC receiver: {ex.Message}");
+      }
     }
 
     private void ProcessOscMessage(OscMessage message)
