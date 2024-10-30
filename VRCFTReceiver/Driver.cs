@@ -197,10 +197,12 @@ public class Driver : IInputDriver, IDisposable
     if (!IsTracking(OSCClient.LastFaceTracking) || !EnableFaceTracking)
     {
       mouth.IsTracking = false;
+      mouth.IsDeviceActive = false;
       return;
     }
 
     mouth.IsTracking = true;
+    mouth.IsDeviceActive = true;
     mouth.MouthLeftSmileFrown = OSCClient.FTData[Expressions.MouthSmileLeft] - OSCClient.FTData[Expressions.MouthFrownLeft];
     mouth.MouthRightSmileFrown = OSCClient.FTData[Expressions.MouthSmileRight] - OSCClient.FTData[Expressions.MouthFrownRight];
     mouth.MouthLeftDimple = OSCClient.FTData[Expressions.MouthDimpleLeft];
