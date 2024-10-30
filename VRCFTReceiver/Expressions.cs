@@ -1,5 +1,75 @@
 namespace VRCFTReceiver
 {
+  public enum ExpressionIndex
+  {
+    BrowInnerUpLeft,
+    BrowInnerUpRight,
+    BrowLowererLeft,
+    BrowLowererRight,
+    BrowOuterUpLeft,
+    BrowOuterUpRight,
+    BrowPinchLeft,
+    BrowPinchRight,
+    CheekPuffSuckLeft,
+    CheekPuffSuckRight,
+    CheekSquintLeft,
+    CheekSquintRight,
+    MouthDimpleLeft,
+    MouthDimpleRight,
+    EyeLeftX,
+    EyeLeftY,
+    EyeRightX,
+    EyeRightY,
+    EyeOpenLeft,
+    EyeOpenRight,
+    EyeSquintLeft,
+    EyeSquintRight,
+    EyeWideLeft,
+    EyeWideRight,
+    JawForward,
+    JawLeft,
+    JawOpen,
+    JawRight,
+    LipFunnelLowerLeft,
+    LipFunnelLowerRight,
+    LipFunnelUpperLeft,
+    LipFunnelUpperRight,
+    LipPuckerLowerLeft,
+    LipPuckerLowerRight,
+    LipPuckerUpperLeft,
+    LipPuckerUpperRight,
+    LipSuckLowerLeft,
+    LipSuckLowerRight,
+    LipSuckUpperLeft,
+    LipSuckUpperRight,
+    MouthClosed,
+    MouthFrownLeft,
+    MouthFrownRight,
+    MouthLowerDownLeft,
+    MouthLowerDownRight,
+    MouthLowerX,
+    MouthPressLeft,
+    MouthPressRight,
+    MouthRaiserLower,
+    MouthRaiserUpper,
+    MouthSmileLeft,
+    MouthSmileRight,
+    MouthStretchLeft,
+    MouthStretchRight,
+    MouthTightenerLeft,
+    MouthTightenerRight,
+    MouthUpperUpLeft,
+    MouthUpperUpRight,
+    MouthUpperX,
+    NoseSneerLeft,
+    NoseSneerRight,
+    TongueOut,
+    TongueRoll,
+    TongueX,
+    TongueY,
+    Count // Used to determine array size
+  }
+
   public static class Expressions
   {
     public const string BrowInnerUpLeft = "/avatar/parameters/v2/BrowInnerUpLeft";
@@ -83,6 +153,28 @@ namespace VRCFTReceiver
         MouthStretchRight, MouthTightenerLeft, MouthTightenerRight, MouthUpperUpLeft,
         MouthUpperUpRight, MouthUpperX, NoseSneerLeft, NoseSneerRight, TongueOut, TongueRoll,
         TongueX, TongueY
-      };
+    };
+
+    private static readonly ExpressionIndex[] _addressToIndex = new ExpressionIndex[(int)ExpressionIndex.Count];
+
+    static Expressions()
+    {
+      for (int i = 0; i < AllAddresses.Length; i++)
+      {
+        _addressToIndex[i] = (ExpressionIndex)i;
+      }
+    }
+
+    public static ExpressionIndex GetIndex(string address)
+    {
+      for (int i = 0; i < AllAddresses.Length; i++)
+      {
+        if (AllAddresses[i] == address)
+        {
+          return _addressToIndex[i];
+        }
+      }
+      return ExpressionIndex.Count;
+    }
   }
 }

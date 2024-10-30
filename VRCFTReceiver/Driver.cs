@@ -155,32 +155,32 @@ public class Driver : IInputDriver, IDisposable
     eyes.SetTracking(state: true);
 
     EyeLeft.SetDirectionFromXY(
-      X: EyesReversedX ? -OSCClient.FTData[Expressions.EyeLeftX] : OSCClient.FTData[Expressions.EyeLeftX],
-      Y: EyesReversedY ? -OSCClient.FTData[Expressions.EyeLeftY] : OSCClient.FTData[Expressions.EyeLeftY]
+      X: EyesReversedX ? -OSCClient.GetData(ExpressionIndex.EyeLeftX) : OSCClient.GetData(ExpressionIndex.EyeLeftX),
+      Y: EyesReversedY ? -OSCClient.GetData(ExpressionIndex.EyeLeftY) : OSCClient.GetData(ExpressionIndex.EyeLeftY)
     );
     EyeRight.SetDirectionFromXY(
-      X: EyesReversedX ? -OSCClient.FTData[Expressions.EyeRightX] : OSCClient.FTData[Expressions.EyeRightX],
-      Y: EyesReversedY ? -OSCClient.FTData[Expressions.EyeRightY] : OSCClient.FTData[Expressions.EyeRightY]
+      X: EyesReversedX ? -OSCClient.GetData(ExpressionIndex.EyeRightX) : OSCClient.GetData(ExpressionIndex.EyeRightX),
+      Y: EyesReversedY ? -OSCClient.GetData(ExpressionIndex.EyeRightY) : OSCClient.GetData(ExpressionIndex.EyeRightY)
     );
 
     UpdateEye(EyeLeft, eyes.LeftEye);
     UpdateEye(EyeRight, eyes.RightEye);
     UpdateEye(EyeCombined, eyes.CombinedEye);
 
-    eyes.LeftEye.Openness = OSCClient.FTData[Expressions.EyeOpenLeft]; // undocumented, but works, reverse of EyeClosedLeft
-    eyes.RightEye.Openness = OSCClient.FTData[Expressions.EyeOpenRight]; // undocumented, but works, reverse of EyeClosedRight
-    eyes.LeftEye.Widen = OSCClient.FTData[Expressions.EyeWideLeft];
-    eyes.RightEye.Widen = OSCClient.FTData[Expressions.EyeWideRight];
-    eyes.LeftEye.Squeeze = OSCClient.FTData[Expressions.EyeSquintLeft];
-    eyes.RightEye.Squeeze = OSCClient.FTData[Expressions.EyeSquintRight];
+    eyes.LeftEye.Openness = OSCClient.GetData(ExpressionIndex.EyeOpenLeft);
+    eyes.RightEye.Openness = OSCClient.GetData(ExpressionIndex.EyeOpenRight);
+    eyes.LeftEye.Widen = OSCClient.GetData(ExpressionIndex.EyeWideLeft);
+    eyes.RightEye.Widen = OSCClient.GetData(ExpressionIndex.EyeWideRight);
+    eyes.LeftEye.Squeeze = OSCClient.GetData(ExpressionIndex.EyeSquintLeft);
+    eyes.RightEye.Squeeze = OSCClient.GetData(ExpressionIndex.EyeSquintRight);
 
-    float leftBrowLowerer = OSCClient.FTData[Expressions.BrowPinchLeft] - OSCClient.FTData[Expressions.BrowLowererLeft];
-    eyes.LeftEye.InnerBrowVertical = OSCClient.FTData[Expressions.BrowInnerUpLeft] - leftBrowLowerer;
-    eyes.LeftEye.OuterBrowVertical = OSCClient.FTData[Expressions.BrowOuterUpLeft] - leftBrowLowerer;
+    float leftBrowLowerer = OSCClient.GetData(ExpressionIndex.BrowPinchLeft) - OSCClient.GetData(ExpressionIndex.BrowLowererLeft);
+    eyes.LeftEye.InnerBrowVertical = OSCClient.GetData(ExpressionIndex.BrowInnerUpLeft) - leftBrowLowerer;
+    eyes.LeftEye.OuterBrowVertical = OSCClient.GetData(ExpressionIndex.BrowOuterUpLeft) - leftBrowLowerer;
 
-    float rightBrowLowerer = OSCClient.FTData[Expressions.BrowPinchRight] - OSCClient.FTData[Expressions.BrowLowererRight];
-    eyes.RightEye.InnerBrowVertical = OSCClient.FTData[Expressions.BrowInnerUpRight] - rightBrowLowerer;
-    eyes.RightEye.OuterBrowVertical = OSCClient.FTData[Expressions.BrowOuterUpRight] - rightBrowLowerer;
+    float rightBrowLowerer = OSCClient.GetData(ExpressionIndex.BrowPinchRight) - OSCClient.GetData(ExpressionIndex.BrowLowererRight);
+    eyes.RightEye.InnerBrowVertical = OSCClient.GetData(ExpressionIndex.BrowInnerUpRight) - rightBrowLowerer;
+    eyes.RightEye.OuterBrowVertical = OSCClient.GetData(ExpressionIndex.BrowOuterUpRight) - rightBrowLowerer;
 
     eyes.ComputeCombinedEyeParameters();
     eyes.FinishUpdate();
@@ -203,50 +203,50 @@ public class Driver : IInputDriver, IDisposable
 
     mouth.IsTracking = true;
     mouth.IsDeviceActive = true;
-    mouth.MouthLeftSmileFrown = OSCClient.FTData[Expressions.MouthSmileLeft] - OSCClient.FTData[Expressions.MouthFrownLeft];
-    mouth.MouthRightSmileFrown = OSCClient.FTData[Expressions.MouthSmileRight] - OSCClient.FTData[Expressions.MouthFrownRight];
-    mouth.MouthLeftDimple = OSCClient.FTData[Expressions.MouthDimpleLeft];
-    mouth.MouthRightDimple = OSCClient.FTData[Expressions.MouthDimpleRight];
-    mouth.CheekLeftPuffSuck = OSCClient.FTData[Expressions.CheekPuffSuckLeft];
-    mouth.CheekRightPuffSuck = OSCClient.FTData[Expressions.CheekPuffSuckRight];
-    mouth.CheekLeftRaise = OSCClient.FTData[Expressions.CheekSquintLeft];
-    mouth.CheekRightRaise = OSCClient.FTData[Expressions.CheekSquintRight];
-    mouth.LipUpperLeftRaise = OSCClient.FTData[Expressions.MouthUpperUpLeft];
-    mouth.LipUpperRightRaise = OSCClient.FTData[Expressions.MouthUpperUpRight];
-    mouth.LipLowerLeftRaise = OSCClient.FTData[Expressions.MouthLowerDownLeft];
-    mouth.LipLowerRightRaise = OSCClient.FTData[Expressions.MouthLowerDownRight];
-    mouth.MouthPoutLeft = OSCClient.FTData[Expressions.LipPuckerUpperLeft] - OSCClient.FTData[Expressions.LipPuckerLowerLeft];
-    mouth.MouthPoutRight = OSCClient.FTData[Expressions.LipPuckerUpperRight] - OSCClient.FTData[Expressions.LipPuckerLowerRight];
-    mouth.LipUpperHorizontal = OSCClient.FTData[Expressions.MouthUpperX];
-    mouth.LipLowerHorizontal = OSCClient.FTData[Expressions.MouthLowerX];
-    mouth.LipTopLeftOverturn = OSCClient.FTData[Expressions.LipFunnelUpperLeft];
-    mouth.LipTopRightOverturn = OSCClient.FTData[Expressions.LipFunnelUpperRight];
-    mouth.LipBottomLeftOverturn = OSCClient.FTData[Expressions.LipFunnelLowerLeft];
-    mouth.LipBottomRightOverturn = OSCClient.FTData[Expressions.LipFunnelLowerRight];
-    mouth.LipTopLeftOverUnder = -OSCClient.FTData[Expressions.LipSuckUpperLeft];
-    mouth.LipTopRightOverUnder = -OSCClient.FTData[Expressions.LipSuckUpperRight];
-    mouth.LipBottomLeftOverUnder = -OSCClient.FTData[Expressions.LipSuckLowerLeft];
-    mouth.LipBottomRightOverUnder = -OSCClient.FTData[Expressions.LipSuckLowerRight];
-    mouth.LipLeftStretchTighten = OSCClient.FTData[Expressions.MouthStretchLeft] - OSCClient.FTData[Expressions.MouthTightenerLeft];
-    mouth.LipRightStretchTighten = OSCClient.FTData[Expressions.MouthStretchRight] - OSCClient.FTData[Expressions.MouthTightenerRight];
-    mouth.LipsLeftPress = OSCClient.FTData[Expressions.MouthPressLeft];
-    mouth.LipsRightPress = OSCClient.FTData[Expressions.MouthPressRight];
+    mouth.MouthLeftSmileFrown = OSCClient.GetData(ExpressionIndex.MouthSmileLeft) - OSCClient.GetData(ExpressionIndex.MouthFrownLeft);
+    mouth.MouthRightSmileFrown = OSCClient.GetData(ExpressionIndex.MouthSmileRight) - OSCClient.GetData(ExpressionIndex.MouthFrownRight);
+    mouth.MouthLeftDimple = OSCClient.GetData(ExpressionIndex.MouthDimpleLeft);
+    mouth.MouthRightDimple = OSCClient.GetData(ExpressionIndex.MouthDimpleRight);
+    mouth.CheekLeftPuffSuck = OSCClient.GetData(ExpressionIndex.CheekPuffSuckLeft);
+    mouth.CheekRightPuffSuck = OSCClient.GetData(ExpressionIndex.CheekPuffSuckRight);
+    mouth.CheekLeftRaise = OSCClient.GetData(ExpressionIndex.CheekSquintLeft);
+    mouth.CheekRightRaise = OSCClient.GetData(ExpressionIndex.CheekSquintRight);
+    mouth.LipUpperLeftRaise = OSCClient.GetData(ExpressionIndex.MouthUpperUpLeft);
+    mouth.LipUpperRightRaise = OSCClient.GetData(ExpressionIndex.MouthUpperUpRight);
+    mouth.LipLowerLeftRaise = OSCClient.GetData(ExpressionIndex.MouthLowerDownLeft);
+    mouth.LipLowerRightRaise = OSCClient.GetData(ExpressionIndex.MouthLowerDownRight);
+    mouth.MouthPoutLeft = OSCClient.GetData(ExpressionIndex.LipPuckerUpperLeft) - OSCClient.GetData(ExpressionIndex.LipPuckerLowerLeft);
+    mouth.MouthPoutRight = OSCClient.GetData(ExpressionIndex.LipPuckerUpperRight) - OSCClient.GetData(ExpressionIndex.LipPuckerLowerRight);
+    mouth.LipUpperHorizontal = OSCClient.GetData(ExpressionIndex.MouthUpperX);
+    mouth.LipLowerHorizontal = OSCClient.GetData(ExpressionIndex.MouthLowerX);
+    mouth.LipTopLeftOverturn = OSCClient.GetData(ExpressionIndex.LipFunnelUpperLeft);
+    mouth.LipTopRightOverturn = OSCClient.GetData(ExpressionIndex.LipFunnelUpperRight);
+    mouth.LipBottomLeftOverturn = OSCClient.GetData(ExpressionIndex.LipFunnelLowerLeft);
+    mouth.LipBottomRightOverturn = OSCClient.GetData(ExpressionIndex.LipFunnelLowerRight);
+    mouth.LipTopLeftOverUnder = -OSCClient.GetData(ExpressionIndex.LipSuckUpperLeft);
+    mouth.LipTopRightOverUnder = -OSCClient.GetData(ExpressionIndex.LipSuckUpperRight);
+    mouth.LipBottomLeftOverUnder = -OSCClient.GetData(ExpressionIndex.LipSuckLowerLeft);
+    mouth.LipBottomRightOverUnder = -OSCClient.GetData(ExpressionIndex.LipSuckLowerRight);
+    mouth.LipLeftStretchTighten = OSCClient.GetData(ExpressionIndex.MouthStretchLeft) - OSCClient.GetData(ExpressionIndex.MouthTightenerLeft);
+    mouth.LipRightStretchTighten = OSCClient.GetData(ExpressionIndex.MouthStretchRight) - OSCClient.GetData(ExpressionIndex.MouthTightenerRight);
+    mouth.LipsLeftPress = OSCClient.GetData(ExpressionIndex.MouthPressLeft);
+    mouth.LipsRightPress = OSCClient.GetData(ExpressionIndex.MouthPressRight);
     mouth.Jaw = new float3(
-      OSCClient.FTData[Expressions.JawRight] - OSCClient.FTData[Expressions.JawLeft],
-      -OSCClient.FTData[Expressions.MouthClosed],
-      OSCClient.FTData[Expressions.JawForward]
+      OSCClient.GetData(ExpressionIndex.JawRight) - OSCClient.GetData(ExpressionIndex.JawLeft),
+      -OSCClient.GetData(ExpressionIndex.MouthClosed),
+      OSCClient.GetData(ExpressionIndex.JawForward)
     );
-    mouth.JawOpen = MathX.Clamp01(OSCClient.FTData[Expressions.JawOpen] - OSCClient.FTData[Expressions.MouthClosed]);
+    mouth.JawOpen = MathX.Clamp01(OSCClient.GetData(ExpressionIndex.JawOpen) - OSCClient.GetData(ExpressionIndex.MouthClosed));
     mouth.Tongue = new float3(
-      OSCClient.FTData[Expressions.TongueX],
-      OSCClient.FTData[Expressions.TongueY],
-      OSCClient.FTData[Expressions.TongueOut]
+      OSCClient.GetData(ExpressionIndex.TongueX),
+      OSCClient.GetData(ExpressionIndex.TongueY),
+      OSCClient.GetData(ExpressionIndex.TongueOut)
     );
-    mouth.TongueRoll = OSCClient.FTData[Expressions.TongueRoll];
-    mouth.NoseWrinkleLeft = OSCClient.FTData[Expressions.NoseSneerLeft];
-    mouth.NoseWrinkleRight = OSCClient.FTData[Expressions.NoseSneerRight];
-    mouth.ChinRaiseBottom = OSCClient.FTData[Expressions.MouthRaiserLower];
-    mouth.ChinRaiseTop = OSCClient.FTData[Expressions.MouthRaiserUpper];
+    mouth.TongueRoll = OSCClient.GetData(ExpressionIndex.TongueRoll);
+    mouth.NoseWrinkleLeft = OSCClient.GetData(ExpressionIndex.NoseSneerLeft);
+    mouth.NoseWrinkleRight = OSCClient.GetData(ExpressionIndex.NoseSneerRight);
+    mouth.ChinRaiseBottom = OSCClient.GetData(ExpressionIndex.MouthRaiserLower);
+    mouth.ChinRaiseTop = OSCClient.GetData(ExpressionIndex.MouthRaiserUpper);
   }
   public void Dispose()
   {

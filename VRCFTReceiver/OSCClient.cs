@@ -10,7 +10,8 @@ namespace VRCFTReceiver
   public class OSCClient
   {
     private bool _oscSocketState;
-    public static readonly Dictionary<string, float> FTData = new Dictionary<string, float> { };
+    private static readonly float[] _ftData = new float[(int)ExpressionIndex.Count];
+    public static float GetData(ExpressionIndex index) => _ftData[(int)index];
 
     public OscReceiver receiver { get; private set; }
     private Thread receiveThread;
@@ -29,9 +30,9 @@ namespace VRCFTReceiver
       var listenPort = port ?? DefaultPort;
       receiver = new OscReceiver(ip, listenPort);
 
-      foreach (var address in Expressions.AllAddresses)
+      for (int i = 0; i < (int)ExpressionIndex.Count; i++)
       {
-        FTData[address] = 0f;
+        _ftData[i] = 0f;
       }
 
       _oscSocketState = true;
@@ -88,13 +89,20 @@ namespace VRCFTReceiver
 
     private void ProcessOscMessage(OscMessage message)
     {
-      if (message == null || !FTData.ContainsKey(message.Address))
+      if (message == null)
       {
-        UniLog.Log($"[VRCFTReceiver] null message or unknown address {message.Address}");
+        UniLog.Log("[VRCFTReceiver] null message");
         return;
       }
 
-      FTData[message.Address] = (float)message[0];
+      var index = Expressions.GetIndex(message.Address);
+      if (index == ExpressionIndex.Count)
+      {
+        UniLog.Log($"[VRCFTReceiver] unknown address {message.Address}");
+        return;
+      }
+
+      _ftData[(int)index] = (float)message[0];
 
       if (message.Address.StartsWith(EYE_PREFIX))
       {
