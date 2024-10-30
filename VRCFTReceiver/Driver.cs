@@ -167,8 +167,8 @@ public class Driver : IInputDriver, IDisposable
     UpdateEye(EyeRight, eyes.RightEye);
     UpdateEye(EyeCombined, eyes.CombinedEye);
 
-    eyes.LeftEye.Openness = OSCClient.FTData[Expressions.EyeOpenLeft];
-    eyes.RightEye.Openness = OSCClient.FTData[Expressions.EyeOpenRight];
+    eyes.LeftEye.Openness = OSCClient.FTData[Expressions.EyeOpenLeft]; // undocumented, but works, reverse of EyeClosedLeft
+    eyes.RightEye.Openness = OSCClient.FTData[Expressions.EyeOpenRight]; // undocumented, but works, reverse of EyeClosedRight
     eyes.LeftEye.Widen = OSCClient.FTData[Expressions.EyeWideLeft];
     eyes.RightEye.Widen = OSCClient.FTData[Expressions.EyeWideRight];
     eyes.LeftEye.Squeeze = OSCClient.FTData[Expressions.EyeSquintLeft];
