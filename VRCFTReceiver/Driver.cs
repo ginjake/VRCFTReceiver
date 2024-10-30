@@ -133,10 +133,30 @@ public class Driver : IInputDriver, IDisposable
   }
   public void UpdateInputs(float deltaTime)
   {
+    bool isEyeTracking = EnableEyeTracking && IsTracking(OSCClient.LastEyeTracking);
+    bool isFaceTracking = EnableFaceTracking && IsTracking(OSCClient.LastFaceTracking);
+
     try
     {
-      UpdateEyes(deltaTime);
-      UpdateMouth(deltaTime);
+      if (isEyeTracking)
+      {
+        UpdateEyes(deltaTime);
+      }
+      else
+      {
+        eyes.IsEyeTrackingActive = false;
+        eyes.SetTracking(state: false);
+      }
+
+      if (isFaceTracking)
+      {
+        UpdateMouth(deltaTime);
+      }
+      else
+      {
+        mouth.IsTracking = false;
+        mouth.IsDeviceActive = false;
+      }
     }
     catch (Exception ex)
     {
@@ -145,12 +165,6 @@ public class Driver : IInputDriver, IDisposable
   }
   private void UpdateEyes(float deltaTime)
   {
-    if (!IsTracking(OSCClient.LastEyeTracking) || !EnableEyeTracking)
-    {
-      eyes.IsEyeTrackingActive = false;
-      eyes.SetTracking(state: false);
-      return;
-    }
     eyes.IsEyeTrackingActive = true;
     eyes.SetTracking(state: true);
 
@@ -194,15 +208,9 @@ public class Driver : IInputDriver, IDisposable
   }
   private void UpdateMouth(float deltaTime)
   {
-    if (!IsTracking(OSCClient.LastFaceTracking) || !EnableFaceTracking)
-    {
-      mouth.IsTracking = false;
-      mouth.IsDeviceActive = false;
-      return;
-    }
-
     mouth.IsTracking = true;
     mouth.IsDeviceActive = true;
+
     mouth.MouthLeftSmileFrown = OSCClient.GetData(ExpressionIndex.MouthSmileLeft) - OSCClient.GetData(ExpressionIndex.MouthFrownLeft);
     mouth.MouthRightSmileFrown = OSCClient.GetData(ExpressionIndex.MouthSmileRight) - OSCClient.GetData(ExpressionIndex.MouthFrownRight);
     mouth.MouthLeftDimple = OSCClient.GetData(ExpressionIndex.MouthDimpleLeft);
