@@ -118,19 +118,6 @@ public class Driver : IInputDriver, IDisposable
       UniLog.Warning("[VRCFTReceiver] OSCConnection not started because port or IP is not valid");
     }
   }
-  private bool IsOSCConnectionActive()
-  {
-    if (_OSCClient != null || _OSCClient.receiver != null)
-    {
-      return false;
-    }
-    if (_OSCQuery != null || _OSCQuery.service != null)
-    {
-      return false;
-    }
-
-    return true;
-  }
   public void UpdateInputs(float deltaTime)
   {
     bool isEyeTracking = EnableEyeTracking && IsTracking(OSCClient.LastEyeTracking);
