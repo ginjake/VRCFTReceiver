@@ -46,6 +46,7 @@ namespace VRCFTReceiver
     {
       UniLog.Log("[VRCFTReceiver] Started OSCClient Listen Loop");
       CancellationToken cancellationToken = (CancellationToken)obj;
+      var packetsToProcess = new Queue<OscPacket>();
 
       while (!cancellationToken.IsCancellationRequested && _oscSocketState)
       {
@@ -57,18 +58,24 @@ namespace VRCFTReceiver
             break;
           }
 
-          OscPacket packet = receiver.Receive();
-          if (packet is OscBundle bundle)
+          while (receiver.TryReceive(out OscPacket packet))
           {
-            foreach (var message in bundle)
+            packetsToProcess.Enqueue(packet);
+          }
+
+          while (packetsToProcess.Count > 0)
+          {
+            var packet = packetsToProcess.Dequeue();
+            if (packet is OscBundle bundle)
             {
-              ProcessOscMessage(message as OscMessage);
+              foreach (var message in bundle)
+              {
+                ProcessOscMessage(message as OscMessage);
+              }
             }
           }
-          // else if (packet is OscMessage message)
-          // {
-          //   ProcessOscMessage(message);
-          // }
+
+          Thread.Sleep(1);
         }
         catch (Exception ex)
         {
