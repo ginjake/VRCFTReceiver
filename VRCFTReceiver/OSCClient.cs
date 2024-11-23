@@ -11,11 +11,19 @@ namespace VRCFTReceiver
   {
     private bool _oscSocketState;
     private static readonly float[] _ftData = new float[(int)ExpressionIndex.Count];
-    public static float GetData(ExpressionIndex index) => _ftData[(int)index];
+    private static readonly object _dataLock = new object();
+    public static float GetData(ExpressionIndex index)
+    {
+      lock (_dataLock)
+      {
+        return _ftData[(int)index];
+      }
+    }
 
     public OscReceiver receiver { get; private set; }
     private Thread receiveThread;
     private CancellationTokenSource cancellationTokenSource;
+    private readonly AutoResetEvent resetEvent = new AutoResetEvent(false);
 
     private const int DefaultPort = 9000;
 
@@ -53,7 +61,6 @@ namespace VRCFTReceiver
     {
       UniLog.Log("[VRCFTReceiver] Started OSCClient Listen Loop");
       CancellationToken cancellationToken = (CancellationToken)obj;
-      var packetsToProcess = new Queue<OscPacket>();
 
       while (!cancellationToken.IsCancellationRequested && _oscSocketState)
       {
@@ -68,24 +75,25 @@ namespace VRCFTReceiver
             continue;
           }
 
-          while (receiver.TryReceive(out OscPacket packet))
-          {
-            packetsToProcess.Enqueue(packet);
-          }
+          resetEvent.WaitOne(1);
+          var packet = receiver.Receive();
 
-          while (packetsToProcess.Count > 0)
+          if (packet is OscBundle bundle)
           {
-            var packet = packetsToProcess.Dequeue();
-            if (packet is OscBundle bundle)
+            foreach (var message in bundle)
             {
-              foreach (var message in bundle)
+              if (message is OscMessage msg)
               {
-                ProcessOscMessage(message as OscMessage);
+                ProcessOscMessage(msg);
               }
             }
           }
+          else if (packet is OscMessage message)
+          {
+            ProcessOscMessage(message);
+          }
 
-          Thread.Sleep(1);
+          resetEvent.Set();
         }
         catch (Exception ex)
         {
@@ -117,18 +125,19 @@ namespace VRCFTReceiver
     {
       if (message == null)
       {
-        UniLog.Log("[VRCFTReceiver] null message");
         return;
       }
 
       var index = Expressions.GetIndex(message.Address);
       if (index == ExpressionIndex.Count)
       {
-        UniLog.Log($"[VRCFTReceiver] unknown address {message.Address}");
         return;
       }
 
-      _ftData[(int)index] = (float)message[0];
+      lock (_dataLock)
+      {
+        _ftData[(int)index] = (float)message[0];
+      }
 
       if (message.Address.StartsWith(EYE_PREFIX))
       {
@@ -165,6 +174,7 @@ namespace VRCFTReceiver
       _oscSocketState = false;
       cancellationTokenSource?.Cancel();
       receiver?.Close();
+      resetEvent?.Dispose();
       receiveThread?.Join(TimeSpan.FromSeconds(5));
       UniLog.Log("[VRCFTReceiver] OSCClient teardown completed");
     }
