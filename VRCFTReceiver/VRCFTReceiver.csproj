@@ -38,11 +38,29 @@
       <HintPath>$(GamePath)ResoniteModLoader.dll</HintPath>
       <HintPath>$(GamePath)Libraries\ResoniteModLoader.dll</HintPath>
     </Reference>
+    <Reference Include="System.Memory">
+      <HintPath>$(GamePath)Resonite_Data\Managed\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>$(GamePath)Resonite_Data\Managed\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>$(GamePath)Resonite_Data\Managed\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions">
+      <HintPath>$(GamePath)Resonite_Data\Managed\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+      <HintPath>$(GamePath)Resonite_Data\Managed\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
     <PackageReference Include="VRChat.OSCQuery" Version="0.0.7" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)'=='true'">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GamePath)rml_mods" />
     <Message Text="Copied $(TargetFileName) to $(GamePath)rml_mods" Importance="high" />
+    <Copy SourceFiles="$(TargetDir)vrc-oscquery-lib.dll" DestinationFolder="$(GamePath)rml_libs" />
+    <Copy SourceFiles="$(TargetDir)MeaMod.DNS.dll" DestinationFolder="$(GamePath)rml_libs" />
+    <Message Text="Copied OSCQuery and MeaMod.DNS dlls to $(GamePath)rml_libs" Importance="high" />
   </Target>
 </Project>
