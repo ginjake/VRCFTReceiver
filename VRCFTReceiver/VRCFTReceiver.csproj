@@ -53,6 +53,9 @@
     <Reference Include="Microsoft.Extensions.Logging.Abstractions">
       <HintPath>$(GamePath)Resonite_Data\Managed\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(GamePath)Resonite_Data\Managed\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <PackageReference Include="VRChat.OSCQuery" Version="0.0.7" />
   </ItemGroup>
 
@@ -63,4 +66,11 @@
     <Copy SourceFiles="$(TargetDir)MeaMod.DNS.dll" DestinationFolder="$(GamePath)rml_libs" />
     <Message Text="Copied OSCQuery and MeaMod.DNS dlls to $(GamePath)rml_libs" Importance="high" />
   </Target>
+
+  <ItemGroup>
+    <Reference Update="@(Reference)">
+      <Private>false</Private>
+      <PrivateAssets>all</PrivateAssets>
+    </Reference>
+  </ItemGroup>
 </Project>
