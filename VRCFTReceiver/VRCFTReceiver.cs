@@ -70,5 +70,18 @@ namespace VRCFTReceiver
                 }
             }
         }
+        [HarmonyPatch(typeof(InputInterface), nameof(InputInterface.RegisterInputDriver))]
+        public class InputInterfaceDisableSteamLinkOSCDriver
+        {
+            public static bool Prefix(IInputDriver driver)
+            {
+                if (driver is SteamLinkOSC_Driver)
+                {
+                    UniLog.Log("[VRCFTReceiver] Prevented SteamLink OSC driver from loading.");
+                    return false;
+                }
+                return true;
+            }
+        }
     }
 }
