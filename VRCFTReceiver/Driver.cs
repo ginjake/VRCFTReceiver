@@ -42,7 +42,18 @@ public class Driver : IInputDriver, IDisposable
     }
   }
   private floatQ _lastValidCombined = floatQ.Identity;
-  public int UpdateOrder => 100;
+  
+  // Smoothing variables for better performance
+  private float _smoothingFactor = 0.15f; // Lower = smoother, higher = more responsive
+  private floatQ _lastLeftEyeRotation = floatQ.Identity;
+  private floatQ _lastRightEyeRotation = floatQ.Identity;
+  
+  // Mouth smoothing variables
+  private float _mouthSmoothingFactor = 0.2f; // Slightly more responsive than eyes
+  private float _lastJawOpen = 0f;
+  private float3 _lastJawPosition = float3.Zero;
+  private float3 _lastTonguePosition = float3.Zero;
+  public int UpdateOrder => 10; // Higher priority for smoother tracking
   public void CollectDeviceInfos(DataTreeList list)
   {
     DataTreeDictionary eyeDict = new();
@@ -106,12 +117,16 @@ public class Driver : IInputDriver, IDisposable
     EyesReversedY = VRCFTReceiver.config.GetValue(VRCFTReceiver.REVERSE_EYES_Y);
     EyesReversedX = VRCFTReceiver.config.GetValue(VRCFTReceiver.REVERSE_EYES_X);
     TrackingTimeout = VRCFTReceiver.config.GetValue(VRCFTReceiver.TRACKING_TIMEOUT_SECONDS);
-    UniLog.Log($"[VRCFTReceiver] Starting VRCFTReceiver with these settings: EnableEyeTracking: {EnableEyeTracking}, EnableFaceTracking: {EnableFaceTracking},  ReceiverPort:{ReceiverPort}, IP: {IP}, EyesReversedY: {EyesReversedY}, EyesReversedX: {EyesReversedX}, TrackingTimeout: {TrackingTimeout}");
+    
+    // Update smoothing factors
+    _smoothingFactor = MathX.Clamp(VRCFTReceiver.config.GetValue(VRCFTReceiver.EYE_SMOOTHING_FACTOR), 0.01f, 1.0f);
+    _mouthSmoothingFactor = MathX.Clamp(VRCFTReceiver.config.GetValue(VRCFTReceiver.MOUTH_SMOOTHING_FACTOR), 0.01f, 1.0f);
+    
+    // Settings updated silently
     InitializeOSCConnection();
   }
   private void InitializeOSCConnection()
   {
-    UniLog.Log("[VRCFTReceiver] Initializing OSCConnection...");
     if (ReceiverPort != 0 && IP != null)
     {
       try
@@ -203,7 +218,25 @@ public class Driver : IInputDriver, IDisposable
   {
     if (source.IsValid)
     {
-      dest.UpdateWithRotation(source.EyeRotation);
+      // Apply smoothing to reduce jitter
+      floatQ smoothedRotation;
+      
+      if (dest == eyes.LeftEye)
+      {
+        smoothedRotation = MathX.Slerp(_lastLeftEyeRotation, source.EyeRotation, _smoothingFactor);
+        _lastLeftEyeRotation = smoothedRotation;
+      }
+      else if (dest == eyes.RightEye)
+      {
+        smoothedRotation = MathX.Slerp(_lastRightEyeRotation, source.EyeRotation, _smoothingFactor);
+        _lastRightEyeRotation = smoothedRotation;
+      }
+      else
+      {
+        smoothedRotation = source.EyeRotation; // No smoothing for combined eye
+      }
+      
+      dest.UpdateWithRotation(smoothedRotation);
     }
   }
   private void UpdateMouth(float deltaTime)
@@ -239,17 +272,28 @@ public class Driver : IInputDriver, IDisposable
     mouth.LipRightStretchTighten = OSCClient.GetData(ExpressionIndex.MouthStretchRight) - OSCClient.GetData(ExpressionIndex.MouthTightenerRight);
     mouth.LipsLeftPress = OSCClient.GetData(ExpressionIndex.MouthPressLeft);
     mouth.LipsRightPress = OSCClient.GetData(ExpressionIndex.MouthPressRight);
-    mouth.Jaw = new float3(
+    // Apply smoothing to jaw movement for smoother animation
+    var rawJawPosition = new float3(
       OSCClient.GetData(ExpressionIndex.JawRight) - OSCClient.GetData(ExpressionIndex.JawLeft),
       -OSCClient.GetData(ExpressionIndex.MouthClosed),
       OSCClient.GetData(ExpressionIndex.JawForward)
     );
-        mouth.JawOpen = MathX.Clamp01(OSCClient.GetData(ExpressionIndex.JawOpen) - OSCClient.GetData(ExpressionIndex.MouthClosed)) ;
-    mouth.Tongue = new float3(
+    _lastJawPosition = MathX.Lerp(_lastJawPosition, rawJawPosition, _mouthSmoothingFactor);
+    mouth.Jaw = _lastJawPosition;
+    
+    // Apply smoothing to jaw open for smoother animation
+    var rawJawOpen = MathX.Clamp01(OSCClient.GetData(ExpressionIndex.JawOpen) - OSCClient.GetData(ExpressionIndex.MouthClosed));
+    _lastJawOpen = MathX.Lerp(_lastJawOpen, rawJawOpen, _mouthSmoothingFactor);
+    mouth.JawOpen = _lastJawOpen;
+    
+    // Apply smoothing to tongue movement
+    var rawTonguePosition = new float3(
       OSCClient.GetData(ExpressionIndex.TongueX),
       OSCClient.GetData(ExpressionIndex.TongueY),
       OSCClient.GetData(ExpressionIndex.TongueOut)
     );
+    _lastTonguePosition = MathX.Lerp(_lastTonguePosition, rawTonguePosition, _mouthSmoothingFactor);
+    mouth.Tongue = _lastTonguePosition;
     mouth.TongueRoll = OSCClient.GetData(ExpressionIndex.TongueRoll);
     mouth.NoseWrinkleLeft = OSCClient.GetData(ExpressionIndex.NoseSneerLeft);
     mouth.NoseWrinkleRight = OSCClient.GetData(ExpressionIndex.NoseSneerRight);
@@ -300,8 +344,6 @@ public class Driver : IInputDriver, IDisposable
           var hash = activeUser.UserName.GetHashCode();
           avatarId = $"avtr_{Math.Abs(hash):x8}-e776-4611-a524-c0b00e6bb627";
         }
-        
-        UniLog.Log($"[VRCFTReceiver] Avatar detected: Name='{avatarName}', ID='{avatarId}'");
       }
       else
       {
@@ -324,8 +366,6 @@ public class Driver : IInputDriver, IDisposable
           // Primary VRChat avatar change message - this is critical
           OSCClient.SendMessage(profile.address, profile.port, "/avatar/change", avatarId);
           messagesSent++;
-          
-          UniLog.Log($"[VRCFTReceiver] Sent avatar change to {profile.name}:{profile.port} -> {avatarId}");
         }
         catch (Exception ex)
         {
@@ -340,8 +380,6 @@ public class Driver : IInputDriver, IDisposable
       OSCClient.SendMessage(IP, 9001, "/avatar/change", avatarId);
       OSCClient.SendMessage(IP, 9000, "/avatar/change", avatarId);
       messagesSent += 2;
-      
-      UniLog.Log($"[VRCFTReceiver] Sent backup avatar change messages to ports 9000/9001");
     }
     catch (Exception ex)
     {
@@ -351,10 +389,6 @@ public class Driver : IInputDriver, IDisposable
     if (messagesSent == 0)
     {
       UniLog.Warning("[VRCFTReceiver] No avatar change messages were sent! Check OSCQuery profiles.");
-    }
-    else
-    {
-      UniLog.Log($"[VRCFTReceiver] Successfully sent {messagesSent} avatar change messages");
     }
   }
   
