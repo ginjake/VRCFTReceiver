@@ -37,6 +37,10 @@ namespace VRCFTReceiver
       UniLog.Log($"[VRCFTReceiver] Started OSCQueryService {service.ServerName} at TCP {tcpPort}, UDP {udpPort}, HTTP http://{service.HostIP}:{tcpPort}");
 
       service.AddEndpoint<string>("/avatar/change", Attributes.AccessValues.ReadWrite, ["default"]);
+      service.AddEndpoint<string>("/avatar/name", Attributes.AccessValues.ReadWrite, ["Unknown"]);
+      service.AddEndpoint<string>("/avatar/id", Attributes.AccessValues.ReadWrite, ["default"]);
+      service.AddEndpoint<string>("/avatar/url", Attributes.AccessValues.ReadWrite, [""]);
+      service.AddEndpoint<bool>("/avatar/loaded", Attributes.AccessValues.ReadWrite, [false]);
 
       AddParametersToEndpoint();
 

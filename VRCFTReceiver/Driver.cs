@@ -58,32 +58,45 @@ public class Driver : IInputDriver, IDisposable
   }
   public void RegisterInputs(InputInterface inputInterface)
   {
-    input = inputInterface;
-    eyes = new Eyes(inputInterface, "VRCFaceTracking OSC", supportsPupilTracking: false);
-    mouth = new Mouth(inputInterface, "VRCFaceTracking OSC", new MouthParameterGroup[16]
+    try
     {
-      MouthParameterGroup.JawPose,
-      MouthParameterGroup.JawOpen,
-      MouthParameterGroup.TonguePose,
-      MouthParameterGroup.LipRaise,
-      MouthParameterGroup.LipHorizontal,
-      MouthParameterGroup.SmileFrown,
-      MouthParameterGroup.MouthDimple,
-      MouthParameterGroup.MouthPout,
-      MouthParameterGroup.LipOverturn,
-      MouthParameterGroup.LipOverUnder,
-      MouthParameterGroup.LipStretchTighten,
-      MouthParameterGroup.LipsPress,
-      MouthParameterGroup.CheekPuffSuck,
-      MouthParameterGroup.CheekRaise,
-      MouthParameterGroup.ChinRaise,
-      MouthParameterGroup.NoseWrinkle
-  });
-    OnSettingsChanged();
-    VRCFTReceiver.config.OnThisConfigurationChanged += (_) => OnSettingsChanged();
-    input.Engine.OnShutdown += Dispose;
-    UniLog.Log("[VRCFTReceiver] Finished Initializing VRCFT driver");
+      input = inputInterface;
+      eyes = new Eyes(inputInterface, "VRCFaceTracking OSC", supportsPupilTracking: false);
+      mouth = new Mouth(inputInterface, "VRCFaceTracking OSC", new MouthParameterGroup[16]
+      {
+        MouthParameterGroup.JawPose,
+        MouthParameterGroup.JawOpen,
+        MouthParameterGroup.TonguePose,
+        MouthParameterGroup.LipRaise,
+        MouthParameterGroup.LipHorizontal,
+        MouthParameterGroup.SmileFrown,
+        MouthParameterGroup.MouthDimple,
+        MouthParameterGroup.MouthPout,
+        MouthParameterGroup.LipOverturn,
+        MouthParameterGroup.LipOverUnder,
+        MouthParameterGroup.LipStretchTighten,
+        MouthParameterGroup.LipsPress,
+        MouthParameterGroup.CheekPuffSuck,
+        MouthParameterGroup.CheekRaise,
+        MouthParameterGroup.ChinRaise,
+        MouthParameterGroup.NoseWrinkle
+      });
+      OnSettingsChanged();
+      VRCFTReceiver.config.OnThisConfigurationChanged += (_) => OnSettingsChanged();
+      input.Engine.OnShutdown += Dispose;
+      
+      // Send initial avatar change immediately
+      AvatarChange(null);
+      
+      UniLog.Log("[VRCFTReceiver] Finished Initializing VRCFT driver");
+    }
+    catch (Exception ex)
+    {
+      UniLog.Error($"[VRCFTReceiver] Failed to register inputs: {ex}");
+      throw;
+    }
   }
+  
   private void OnSettingsChanged()
   {
     EnableEyeTracking = VRCFTReceiver.config.GetValue(VRCFTReceiver.ENABLE_EYE_TRACKING);
@@ -231,7 +244,7 @@ public class Driver : IInputDriver, IDisposable
       -OSCClient.GetData(ExpressionIndex.MouthClosed),
       OSCClient.GetData(ExpressionIndex.JawForward)
     );
-    mouth.JawOpen = MathX.Clamp01(OSCClient.GetData(ExpressionIndex.JawOpen) - OSCClient.GetData(ExpressionIndex.MouthClosed));
+        mouth.JawOpen = MathX.Clamp01(OSCClient.GetData(ExpressionIndex.JawOpen) - OSCClient.GetData(ExpressionIndex.MouthClosed)) ;
     mouth.Tongue = new float3(
       OSCClient.GetData(ExpressionIndex.TongueX),
       OSCClient.GetData(ExpressionIndex.TongueY),
@@ -264,12 +277,247 @@ public class Driver : IInputDriver, IDisposable
   }
   public void AvatarChange()
   {
+    AvatarChange(null);
+  }
+
+  public void AvatarChange(UserRoot userRoot)
+  {
+    // Use simple, consistent avatar information like the working version
+    string avatarId = "avtr_c38a1615-e776-4611-a524-c0b00e6bb627"; // Fixed VRChat-style ID
+    string avatarName = "ResoniteAvatar";
+    
+    try
+    {
+      if (userRoot != null && userRoot.ActiveUser != null && userRoot.ActiveUser.IsLocalUser)
+      {
+        var activeUser = userRoot.ActiveUser;
+        
+        // Use simple, reliable identification
+        if (!string.IsNullOrEmpty(activeUser.UserName))
+        {
+          avatarName = $"{activeUser.UserName}_Avatar";
+          // Generate consistent VRChat-style ID
+          var hash = activeUser.UserName.GetHashCode();
+          avatarId = $"avtr_{Math.Abs(hash):x8}-e776-4611-a524-c0b00e6bb627";
+        }
+        
+        UniLog.Log($"[VRCFTReceiver] Avatar detected: Name='{avatarName}', ID='{avatarId}'");
+      }
+      else
+      {
+        UniLog.Warning("[VRCFTReceiver] UserRoot or ActiveUser is null");
+      }
+    }
+    catch (Exception ex)
+    {
+      UniLog.Error($"[VRCFTReceiver] Failed to get avatar info: {ex.Message}");
+    }
+
+    // Send VRChat-compatible OSC messages
+    var messagesSent = 0;
     foreach (var profile in _OSCQuery.profiles)
     {
       if (profile.name.StartsWith("VRCFT"))
       {
-        OSCClient.SendMessage(profile.address, profile.port, "/avatar/change", "default");
+        try
+        {
+          // Primary VRChat avatar change message - this is critical
+          OSCClient.SendMessage(profile.address, profile.port, "/avatar/change", avatarId);
+          messagesSent++;
+          
+          UniLog.Log($"[VRCFTReceiver] Sent avatar change to {profile.name}:{profile.port} -> {avatarId}");
+        }
+        catch (Exception ex)
+        {
+          UniLog.Error($"[VRCFTReceiver] Failed to send avatar change: {ex.Message}");
+        }
       }
     }
+    
+    // Also send to common VRCFaceTracking ports as backup
+    try
+    {
+      OSCClient.SendMessage(IP, 9001, "/avatar/change", avatarId);
+      OSCClient.SendMessage(IP, 9000, "/avatar/change", avatarId);
+      messagesSent += 2;
+      
+      UniLog.Log($"[VRCFTReceiver] Sent backup avatar change messages to ports 9000/9001");
+    }
+    catch (Exception ex)
+    {
+      UniLog.Warning($"[VRCFTReceiver] Failed to send backup messages: {ex.Message}");
+    }
+    
+    if (messagesSent == 0)
+    {
+      UniLog.Warning("[VRCFTReceiver] No avatar change messages were sent! Check OSCQuery profiles.");
+    }
+    else
+    {
+      UniLog.Log($"[VRCFTReceiver] Successfully sent {messagesSent} avatar change messages");
+    }
+  }
+  
+  private Slot FindAvatarSlot(Slot parentSlot)
+  {
+    if (parentSlot == null) return null;
+    
+    // Check if current slot looks like an avatar
+    if (parentSlot.Name != null && 
+        (parentSlot.Name.ToLower().Contains("avatar") || 
+         parentSlot.Name.ToLower().Contains("character")))
+    {
+      return parentSlot;
+    }
+    
+    // Search children recursively (limit depth to avoid infinite loops)
+    return SearchAvatarInChildren(parentSlot, 0, 5);
+  }
+  
+  private Slot SearchAvatarInChildren(Slot slot, int currentDepth, int maxDepth)
+  {
+    if (slot == null || currentDepth >= maxDepth) return null;
+    
+    for (int i = 0; i < slot.ChildrenCount; i++)
+    {
+      var child = slot[i];
+      if (child?.Name != null && 
+          (child.Name.ToLower().Contains("avatar") || 
+           child.Name.ToLower().Contains("character")))
+      {
+        return child;
+      }
+      
+      // Recursive search
+      var result = SearchAvatarInChildren(child, currentDepth + 1, maxDepth);
+      if (result != null) return result;
+    }
+    
+    return null;
+  }
+  
+  private Slot FindEnhancedAvatarSlot(Slot parentSlot)
+  {
+    if (parentSlot == null) return null;
+    
+    // Enhanced patterns for avatar detection
+    var avatarPatterns = new[] { "avatar", "character", "model", "body", "mesh", "armature" };
+    
+    // Check current slot
+    if (parentSlot.Name != null)
+    {
+      var lowerName = parentSlot.Name.ToLower();
+      foreach (var pattern in avatarPatterns)
+      {
+        if (lowerName.Contains(pattern))
+        {
+          return parentSlot;
+        }
+      }
+    }
+    
+    // Enhanced recursive search with more patterns
+    return SearchEnhancedAvatarInChildren(parentSlot, 0, 7, avatarPatterns);
+  }
+  
+  private Slot SearchEnhancedAvatarInChildren(Slot slot, int currentDepth, int maxDepth, string[] patterns)
+  {
+    if (slot == null || currentDepth >= maxDepth) return null;
+    
+    for (int i = 0; i < slot.ChildrenCount; i++)
+    {
+      var child = slot[i];
+      if (child?.Name != null)
+      {
+        var lowerName = child.Name.ToLower();
+        foreach (var pattern in patterns)
+        {
+          if (lowerName.Contains(pattern))
+          {
+            return child;
+          }
+        }
+      }
+      
+      // Recursive search
+      var result = SearchEnhancedAvatarInChildren(child, currentDepth + 1, maxDepth, patterns);
+      if (result != null) return result;
+    }
+    
+    return null;
+  }
+  
+  private string ExtractAvatarIdFromUrl(string url)
+  {
+    if (string.IsNullOrEmpty(url)) return "default";
+    
+    // Try to extract VRChat-style avatar ID from URL
+    try
+    {
+      var uri = new System.Uri(url);
+      var pathSegments = uri.AbsolutePath.Split('/');
+      
+      foreach (var segment in pathSegments)
+      {
+        if (segment.StartsWith("avtr_") && segment.Length > 10)
+        {
+          return segment;
+        }
+      }
+      
+      // Fallback: generate ID from URL hash
+      var hash = url.GetHashCode().ToString("X");
+      return $"avtr_{hash}";
+    }
+    catch
+    {
+      // If URL parsing fails, generate from string hash
+      var hash = url.GetHashCode().ToString("X");
+      return $"avtr_{hash}";
+    }
+  }
+  
+  private string GenerateAvatarId(string avatarName)
+  {
+    if (string.IsNullOrEmpty(avatarName)) return "default";
+    
+    // Generate VRChat-style avatar ID
+    var hash = avatarName.GetHashCode().ToString("X");
+    var guid = System.Guid.NewGuid().ToString("N").Substring(0, 16);
+    return $"avtr_{hash}_{guid}";
+  }
+  
+  private string FindAvatarUrlInSlot(Slot slot)
+  {
+    if (slot == null) return "";
+    
+    // Generate URL from slot information using available properties
+    try
+    {
+      // Use slot name and hierarchy to create unique identifier
+      if (!string.IsNullOrEmpty(slot.Name))
+      {
+        var hash = slot.Name.GetHashCode().ToString("X");
+        return $"resonite://avatar/{hash}";
+      }
+      
+      // Check for URL in parent hierarchy using available properties
+      var parent = slot.Parent;
+      while (parent != null)
+      {
+        if (!string.IsNullOrEmpty(parent.Name))
+        {
+          var hash = parent.Name.GetHashCode().ToString("X");
+          return $"resonite://avatar/{hash}";
+        }
+        parent = parent.Parent;
+      }
+    }
+    catch (Exception)
+    {
+      // Ignore errors
+    }
+    
+    return "";
   }
 }

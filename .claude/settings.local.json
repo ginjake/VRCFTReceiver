@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(dotnet build:*)",
+      "Bash(msbuild:*)",
+      "Bash(\"/mnt/c/Program Files/dotnet/dotnet.exe\" build)",
+      "Bash(\"/mnt/c/Program Files/dotnet/dotnet.exe\" build -p:CopyToMods=false)"
+    ],
+    "deny": []
+  }
+}
