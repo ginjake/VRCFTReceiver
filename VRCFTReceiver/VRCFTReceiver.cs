@@ -24,16 +24,12 @@ namespace VRCFTReceiver
         public static ModConfigurationKey<bool> REVERSE_EYES_X = new("reverse_eyes_x", "Reverse eye tracking x direction", () => false);
         [AutoRegisterConfigKey]
         public static ModConfigurationKey<int> TRACKING_TIMEOUT_SECONDS = new("tracking_timeout_seconds", "Seconds until tracking is considered inactive", () => 5);
-        [AutoRegisterConfigKey]
-        public static ModConfigurationKey<float> EYE_SMOOTHING_FACTOR = new("eye_smoothing_factor", "Eye movement smoothing (0.05=very smooth, 0.3=responsive)", () => 0.15f);
-        [AutoRegisterConfigKey]
-        public static ModConfigurationKey<float> MOUTH_SMOOTHING_FACTOR = new("mouth_smoothing_factor", "Mouth movement smoothing (0.05=very smooth, 0.3=responsive)", () => 0.2f);
         public static ModConfiguration config;
         public static Driver VRCFTDriver;
         public override string Name => "VRCFTReceiver";
-        public override string Author => "hazre";
-        public override string Version => "2.0.0";
-        public override string Link => "https://github.com/hazre/VRCFTReceiver";
+        public override string Author => "hazre & ginjake";
+        public override string Version => "2.1.0";
+        public override string Link => "https://github.com/ginjake/VRCFTReceiver";
 
         public override void OnEngineInit()
         {
