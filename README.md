@@ -8,25 +8,19 @@ A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoade
 ## Installation
 
 1. Install [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader).
-2. Place [VRCFTReceiver.dll](https://github.com/hazre/VRCFTReceiver/releases/latest/download/VRCFTReceiver.dll) into your `rml_mods` folder. This folder should be at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a default install. You can create it if it's missing, or if you launch the game once with ResoniteModLoader installed it will create the folder for you.
-3. ~~Copy `vrc_parameters.json` template from the static folder (or from Releases) into `C:\Users\{USER}\AppData\LocalLow\VRChat\VRChat\OSC\{USER_UUID}\Avatars`.~~ (Not required as of v1.0.3)
-4. Launch VRCFaceTracking
-5. Start the game. If you want to verify that the mod is working you can check your Resonite logs.
-6. Use the dynamic variables to drive your avatar's blendshapes
+2. Place [VRCFTReceiver.dll](https://github.com/ginjake/VRCFTReceiver/releases/latest/download/VRCFTReceiver.dll) into your `rml_mods` folder. This folder should be at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a default install. You can create it if it's missing, or if you launch the game once with ResoniteModLoader installed it will create the folder for you.
+3. Launch VRCFaceTracking
+4. Start the game. If you want to verify that the mod is working you can check your Resonite logs.
+5. Use the dynamic variables to drive your avatar's blendshapes
 
 > [!NOTE]
 > As of v1.0.3, `vrc_parameters.json` template with all the parameters now gets created at `C:\Users\{USER}\AppData\LocalLow\VRChat\VRChat\OSC\vrcft\Avatars` on initial install, so you don't need to copy it over manually anymore. You can edit this file if you wish to change the parameters.
 
 ## Requirements
 
-- [VRCFaceTracking](https://github.com/benaclejames/VRCFaceTracking) 5.1.1 (Version 5.2.3 is broken currently, please use 5.1.1)
-  - **How to run/install v5.1.1 even though the certificate has expired:** Download the [MSIX file](https://github.com/benaclejames/VRCFaceTracking/releases/download/5.1.1.0/VRCFaceTracking_5.1.1.0_x64.msix), rename the extension to .zip and export it in a folder. Then you should be able to run VRCFaceTracking.exe in that folder to launch VRCFT v5.1.1
-
-## Resonite Prefabs
-
-A Simple Template Prefab that I use to drive my avatar's face tracking blendshapes. Make to sure to assign the proper fields in the `DV` slot for disabling the face tracking in Desktop.
-
-- Template & Sample Avatar: `resrec:///U-hazre/R-03862F323FD20FBF7E5154015D67E580586E826AC732BD956239C1A72D084EB8`
+- [VRCFaceTracking](https://github.com/benaclejames/VRCFaceTracking) 5.2.3
+- Works on Resonite Splittening
+- Requires Splittening mod environment
 
 ## How it works
 
@@ -66,3 +60,4 @@ Last Tested with [VRCFaceTracking v5.1.1](https://github.com/benaclejames/VRCFac
 - [Based on dfgHiatus's VRCFaceTracking Wrapper Code](https://github.com/dfgHiatus/VRCFT-Module-Wrapper/blob/master/VRCFTModuleWrapper/OSC/VRCFTOSC.cs)
 - [Bunch of help from art0007i](https://github.com/art0007i)
 - [Help from knackrack615](https://github.com/knackrack615)
+- ginjake
