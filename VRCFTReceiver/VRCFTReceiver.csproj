@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{FFA93FA9-4040-46FF-8A1C-2A190C0CC235}</ProjectGuid>
@@ -7,79 +8,94 @@
     <AssemblyTitle>VRCFTReceiver</AssemblyTitle>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>12</LangVersion>
-    <TargetFramework>net472</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <GamePath>$(MSBuildThisFileDirectory)Resonite</GamePath>
     <GamePath Condition="Exists('C:\Program Files (x86)\Steam\steamapps\common\Resonite\')">C:\Program Files (x86)\Steam\steamapps\common\Resonite\</GamePath>
     <GamePath Condition="Exists('$(HOME)/.steam/steam/steamapps/common/Resonite/')">$(HOME)/.steam/steam/steamapps/common/Resonite/</GamePath>
-    <GamePath Condition="Exists('E:\Programs\Steam\steamapps\common\Resonite')">E:\Programs\Steam\steamapps\common\Resonite\</GamePath>
+    <GamePath Condition="Exists('E:\Programs\Steam\steamapps\common\Resonite\')">E:\Programs\Steam\steamapps\common\Resonite\</GamePath>
+    <GamePath Condition="Exists('$(HOME)\AppData\Local\RESO Launcher\profiles\premod\Game\')">$(HOME)\AppData\Local\RESO Launcher\profiles\premod\Game\</GamePath>
     <CopyLocal>false</CopyLocal>
     <CopyToMods Condition="'$(CopyToMods)'==''">true</CopyToMods>
     <DebugSymbols Condition="'$(Configuration)'=='Release'">false</DebugSymbols>
     <DebugType Condition="'$(Configuration)'=='Release'">None</DebugType>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Reference Include="Elements.Core" />
-    <Reference Include="FrooxEngine" />
-    <Reference Include="HarmonyLib">
-      <HintPath>C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\rml_libs\0Harmony.dll</HintPath>
+  <PropertyGroup>
+    <IsNet9 Condition="Exists('$(GamePath)\Resonite.dll')">true</IsNet9>
+    <IsNet9 Condition="!Exists('$(GamePath)\Resonite.dll')">false</IsNet9>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsNet9)' == 'false'">
+    <TargetFramework>net472</TargetFramework>
+    <GameLibs>$(GamePath)Resonite_Data\Managed\</GameLibs>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsNet9)' == 'true'">
+    <TargetFramework>net9.0</TargetFramework>
+    <DefineConstants>IsNet9</DefineConstants>
+    <GameLibs>$(GamePath)</GameLibs>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsNet9)' == 'true'">
+    <Reference Include="Renderite.Shared">
+      <HintPath>$(GameLibs)Renderite.Shared.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="Renderite.Shared" />
-    <Reference Include="ResoniteModLoader">
-      <HintPath>C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\Libraries\ResoniteModLoader.dll</HintPath>
-    </Reference>
-    <Reference Include="Rug.Osc" />
-    <Reference Include="System.Memory">
-      <HintPath>C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\System.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Numerics.Vectors">
-      <HintPath>C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe">
-      <HintPath>C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions">
-      <HintPath>C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Logging.Abstractions">
-      <HintPath>C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="VRCFaceTracking.Core" />
-    <PackageReference Include="VRChat.OSCQuery" Version="0.0.7" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)'=='true'">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\rml_mods" />
-    <Message Text="Copied $(TargetFileName) to C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\rml_mods" Importance="high" />
-    <Copy SourceFiles="$(TargetDir)vrc-oscquery-lib.dll" DestinationFolder="C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\rml_libs" />
-    <Copy SourceFiles="$(TargetDir)MeaMod.DNS.dll" DestinationFolder="C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\rml_libs" />
-    <Message Text="Copied OSCQuery and MeaMod.DNS dlls to $(GamePath)rml_libs" Importance="high" />
+  <ItemGroup>
+    <Reference Include="HarmonyLib">
+      <HintPath Condition="Exists('$(GamePath)rml_libs\0Harmony-Net9.dll')">$(GamePath)rml_libs\0Harmony-Net9.dll</HintPath>
+      <HintPath Condition="Exists('$(GamePath)0Harmony-Net9.dll')">$(GamePath)0Harmony-Net9.dll</HintPath>
+      <HintPath Condition="Exists('$(GamePath)rml_libs\0Harmony.dll')">$(GamePath)rml_libs\0Harmony.dll</HintPath>
+      <HintPath Condition="Exists('$(GamePath)0Harmony.dll')">$(GamePath)0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Elements.Core">
+      <HintPath>$(GameLibs)Elements.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="FrooxEngine">
+      <HintPath>$(GameLibs)FrooxEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Rug.Osc">
+      <HintPath>$(GameLibs)Rug.Osc.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ResoniteModLoader">
+      <HintPath Condition="Exists('$(GamePath)ResoniteModLoader.dll')">$(GamePath)ResoniteModLoader.dll</HintPath>
+      <HintPath Condition="Exists('$(GamePath)Libraries\ResoniteModLoader.dll')">$(GamePath)Libraries\ResoniteModLoader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(GameLibs)Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <PackageReference Include="VRChat.OSCQuery" Version="0.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+  </ItemGroup>
+
+<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)'=='true'">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GamePath)rml_mods" />
+    <Message Text="Copied $(TargetFileName) to $(GamePath)rml_mods" Importance="high" />
+    
+    <!-- Copy OSCQuery DLL if it exists -->
+    <Copy SourceFiles="$(TargetDir)vrc-oscquery-lib.dll" DestinationFolder="$(GamePath)rml_libs" Condition="Exists('$(TargetDir)vrc-oscquery-lib.dll')" />
+    <Message Text="Copied vrc-oscquery-lib.dll to $(GamePath)rml_libs" Importance="high" Condition="Exists('$(TargetDir)vrc-oscquery-lib.dll')" />
+    <Message Text="Warning: vrc-oscquery-lib.dll not found in $(TargetDir)" Importance="high" Condition="!Exists('$(TargetDir)vrc-oscquery-lib.dll')" />
+    
+    <!-- Copy MeaMod.DNS DLL if it exists -->
+    <Copy SourceFiles="$(TargetDir)MeaMod.DNS.dll" DestinationFolder="$(GamePath)rml_libs" Condition="Exists('$(TargetDir)MeaMod.DNS.dll')" />
+    <Message Text="Copied MeaMod.DNS.dll to $(GamePath)rml_libs" Importance="high" Condition="Exists('$(TargetDir)MeaMod.DNS.dll')" />
+    <Message Text="Warning: MeaMod.DNS.dll not found in $(TargetDir)" Importance="high" Condition="!Exists('$(TargetDir)MeaMod.DNS.dll')" />
   </Target>
 
   <ItemGroup>
     <Reference Update="@(Reference)">
       <Private>false</Private>
       <PrivateAssets>all</PrivateAssets>
-    </Reference>
-    <Reference Update="Elements.Core">
-      <HintPath>C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\Elements.Core.dll</HintPath>
-    </Reference>
-    <Reference Update="FrooxEngine">
-      <HintPath>C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\FrooxEngine.dll</HintPath>
-    </Reference>
-    <Reference Update="Renderite.Shared">
-      <HintPath>C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\Renderite.Shared.dll</HintPath>
-    </Reference>
-    <Reference Update="Rug.Osc">
-      <HintPath>C:\Users\ottoi\AppData\Local\RESO Launcher\profiles\premod\Game\Rug.Osc.dll</HintPath>
-    </Reference>
-    <Reference Update="VRCFaceTracking.Core">
-      <HintPath>..\..\..\..\VRCFT\VRCFaceTracking\VRCFaceTracking.Core\bin\x64\Release\net7.0\VRCFaceTracking.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
