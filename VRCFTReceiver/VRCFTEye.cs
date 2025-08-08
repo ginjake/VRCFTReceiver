@@ -7,7 +7,7 @@ namespace VRCFTReceiver
   {
     public readonly bool IsTracking => IsValid && Eyelid > 0.1f;
 
-    public readonly bool IsValid => EyeDirection.Magnitude > 0f && EyeDirection.SqrMagnitude > 0f && MathX.IsValid(EyeDirection) && EyeDirection.IsValid() && EyeRotation != null;
+    public readonly bool IsValid => EyeDirection.Magnitude > 0f && EyeDirection.SqrMagnitude > 0f && MathX.IsValid(EyeDirection) && EyeDirection.IsValid() && EyeRotation.IsValid;
 
     public float3 EyeDirection
     {
