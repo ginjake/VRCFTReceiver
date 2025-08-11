@@ -44,6 +44,7 @@ Since we aren't using VRCFT for _VRChat_, we need to get creative and create our
 
 > You can find all of the paramters here at [VRCFT Docs](https://docs.vrcft.io/docs/tutorial-avatars/tutorial-avatars-extras/parameters) (FYI: They aren't exactly 1:1 to the one used for the JSON, might need to look into how some VRC avatars do it or ask in their [Discord](https://discord.com/invite/vrcft), You can find me there as well if you need help)
 
+Last Tested with [VRCFaceTracking v5.2.3](https://github.com/benaclejames/VRCFaceTracking/releases), Headset: Varjo Aero, Desktop iFacialMocap,VIVE Focus Vision used ALVR
 
 ## Credits
 
