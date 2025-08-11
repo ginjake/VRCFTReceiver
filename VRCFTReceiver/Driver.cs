@@ -42,7 +42,7 @@ public class Driver : IInputDriver, IDisposable
     }
   }
   private floatQ _lastValidCombined = floatQ.Identity;
-  public int UpdateOrder => 100; // Restored to original priority to avoid conflicts
+  public int UpdateOrder => 100;
   public void CollectDeviceInfos(DataTreeList list)
   {
     DataTreeDictionary eyeDict = new();
@@ -84,10 +84,10 @@ public class Driver : IInputDriver, IDisposable
       OnSettingsChanged();
       VRCFTReceiver.config.OnThisConfigurationChanged += (_) => OnSettingsChanged();
       input.Engine.OnShutdown += Dispose;
-      
+
       // Send initial avatar change immediately
-      AvatarChange(null);
-      
+      AvatarChange();
+
       UniLog.Log("[VRCFTReceiver] Finished Initializing VRCFT driver");
     }
     catch (Exception ex)
@@ -96,7 +96,7 @@ public class Driver : IInputDriver, IDisposable
       throw;
     }
   }
-  
+
   private void OnSettingsChanged()
   {
     EnableEyeTracking = VRCFTReceiver.config.GetValue(VRCFTReceiver.ENABLE_EYE_TRACKING);
@@ -264,12 +264,8 @@ public class Driver : IInputDriver, IDisposable
     }
     return true;
   }
-  public void AvatarChange()
-  {
-    AvatarChange(null);
-  }
 
-  public void AvatarChange(UserRoot userRoot)
+  public void AvatarChange()
   {
     foreach (var profile in _OSCQuery.profiles)
     {

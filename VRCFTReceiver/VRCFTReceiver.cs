@@ -2,8 +2,6 @@ using HarmonyLib;
 using ResoniteModLoader;
 using FrooxEngine;
 using System;
-using System.Linq;
-using System.Reflection;
 using Elements.Core;
 
 namespace VRCFTReceiver
@@ -27,20 +25,19 @@ namespace VRCFTReceiver
         public static ModConfiguration config;
         public static Driver VRCFTDriver;
         public override string Name => "VRCFTReceiver";
-        public override string Author => "hazre & ginjake";
+        public override string Author => "hazre, ginjake";
         public override string Version => "2.1.0";
-        public override string Link => "https://github.com/ginjake/VRCFTReceiver";
+        public override string Link => "https://github.com/hazre/VRCFTReceiver";
 
         public override void OnEngineInit()
         {
             try
             {
                 config = GetConfiguration();
-                
+
                 Harmony harmony = new Harmony("dev.hazre.VRCFTReceiver");
                 harmony.PatchAll();
-                
-                // Try direct initialization since InputInterface is already created
+
                 TryDirectDriverInitialization();
             }
             catch (Exception ex)
@@ -57,28 +54,17 @@ namespace VRCFTReceiver
             {
                 if (__instance.ActiveUser.IsLocalUser && VRCFTDriver != null)
                 {
-                    VRCFTDriver.AvatarChange(__instance);
+                    VRCFTDriver.AvatarChange();
                 }
             }
         }
-        
-        // User.OnAwake doesn't exist in new Resonite, remove this patch
-        
-        // Manual trigger method for testing
-        public static void TriggerAvatarChange()
-        {
-            VRCFTDriver?.AvatarChange(null);
-        }
-        // All InputInterface constructor patches removed due to API changes in new Resonite
-        
-        // RegisterInputDriver patch also removed - using direct initialization only
-        
+
         private static void TryDirectDriverInitialization()
         {
             try
             {
                 var engine = Engine.Current;
-                
+
                 if (engine?.InputInterface != null && VRCFTDriver == null)
                 {
                     VRCFTDriver = new Driver();
