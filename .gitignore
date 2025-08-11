@@ -344,3 +344,6 @@ healthchecksdb
 
 # Serena files
 .serena/
+
+# claude code files
+.claude/
