@@ -2,49 +2,38 @@
 
 A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader) mod, that let's you use [VRCFaceTracking](https://github.com/benaclejames/VRCFaceTracking) Program for Eye and Face Tracking inside [Resonite](https://resonite.com/).
 
-> [!WARNING]
-> This is not a Plug and Play solution, it requires setup in-game.
-
 ## Installation
 
 1. Install [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader).
-2. Place [VRCFTReceiver.dll](https://github.com/ginjake/VRCFTReceiver/releases/latest/download/VRCFTReceiver.dll) into your `rml_mods` folder. This folder should be at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a default install. You can create it if it's missing, or if you launch the game once with ResoniteModLoader installed it will create the folder for you.
-3. vrc-oscquery-lib.dll and MeaMod.DNS.dll to rml_libs folder, you find it where resonite is installed.
+2. Place [VRCFTReceiver.dll](https://github.com/hazre/VRCFTReceiver/releases/latest/download/VRCFTReceiver.dll) into your `rml_mods` folder. This folder should be at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a default install. You can create it if it's missing, or if you launch the game once with ResoniteModLoader installed it will create the folder for you.
+3. `vrc-oscquery-lib.dll` and `MeaMod.DNS.dll` to rml_libs folder, you find it where resonite is installed.
 4. Launch VRCFaceTracking
 5. Start the game. If you want to verify that the mod is working you can check your Resonite logs.
-
-> [!NOTE]
-> As of v1.0.3, `vrc_parameters.json` template with all the parameters now gets created at `C:\Users\{USER}\AppData\LocalLow\VRChat\VRChat\OSC\vrcft\Avatars` on initial install, so you don't need to copy it over manually anymore. You can edit this file if you wish to change the parameters.
 
 ## Requirements
 
 - [VRCFaceTracking](https://github.com/benaclejames/VRCFaceTracking) 5.2.3
-- Works on Resonite Splittening
-- Requires Splittening mod environment
 
 ## How it works
 
-Basically the way VRCFT works is that it waits for a OSC message that says which json file to load at `C:\Users\{USER}\AppData\LocalLow\VRChat\VRChat\OSC\{USER_UUID}\Avatars` which your VRChat avatar basically generates (If you use VRCFT Template). In this Json file, it includes all the parameters your avatar requires.
+VRCFTReceiver automatically connects VRCFaceTracking to Resonite using OSC (Open Sound Control) communication and OSCQuery for automatic discovery. 
 
-Since we aren't using VRCFT for _VRChat_, we need to get creative and create our own JSON file with parameters we need. You can find example of my own parameters file in `/static/vrc_parameters.json`. If you need access to any other parameters, you need to add it by basically copy pasting the same template used for each paramter. For example:
+When you start Resonite with this mod installed, it:
+1. **Automatically discovers VRCFaceTracking** - Uses OSCQuery to advertise itself as a VRChat-compatible client, no manual setup required
+2. **Receives face tracking data** - Gets eye and face movement data in real-time over OSC (default port: 9000)  
+3. **Translates to Resonite** - Converts the data into Resonite's native eye and face tracking format
+4. **Handles avatar changes** - Automatically notifies VRCFaceTracking when you switch avatars
 
-```json
-{
-  "name": "FT/v2/EyeLeftX", // Paramter name
-  "input": {
-    "address": "/avatar/parameters/FT/v2/EyeLeftX", // Paramter name address
-    "type": "Float"
-  },
-  "output": {
-    "address": "/avatar/parameters/FT/v2/EyeLeftX", // Paramter name address
-    "type": "Float"
-  }
-}
-```
+This provides seamless face tracking in Resonite without needing to configure JSON files or manually set up connections.
 
-> You can find all of the paramters here at [VRCFT Docs](https://docs.vrcft.io/docs/tutorial-avatars/tutorial-avatars-extras/parameters) (FYI: They aren't exactly 1:1 to the one used for the JSON, might need to look into how some VRC avatars do it or ask in their [Discord](https://discord.com/invite/vrcft), You can find me there as well if you need help)
+## Tested Configurations
 
-Last Tested with [VRCFaceTracking v5.2.3](https://github.com/benaclejames/VRCFaceTracking/releases), Headset: Varjo Aero, Desktop iFacialMocap,VIVE Focus Vision used ALVR
+| VRCFT Version | Module       | Device              | Tested By |
+|---------------|--------------|--------------------|-----------|
+| v5.2.3        | Varjo        | Varjo Aero          | ginjake   |
+| v5.2.3        | iFacialMocap | N/A                 | ginjake   |
+| v5.2.3        | ALVR         | VIVE Focus Vision   | ginjake   |
+| v5.2.3        | LiveLink     | iPad Pro            | hazre     |
 
 ## Credits
 
@@ -52,4 +41,3 @@ Last Tested with [VRCFaceTracking v5.2.3](https://github.com/benaclejames/VRCFac
 - [Bunch of help from art0007i](https://github.com/art0007i)
 - [Help from knackrack615](https://github.com/knackrack615)
 - [Splittening support by ginjake](https://x.com/sirojake)
-
