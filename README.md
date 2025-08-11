@@ -26,6 +26,26 @@ When you start Resonite with this mod installed, it:
 
 This provides seamless face tracking in Resonite without needing to configure JSON files or manually set up connections.
 
+## Supported Parameters
+
+VRCFTReceiver translates VRCFaceTracking data into Resonite's native tracking systems:
+
+### Eye Tracking
+- Eye position (X/Y coordinates for left and right eyes)
+- Eye openness, widening, and squinting
+- Eyebrow movements (inner/outer brow vertical positions)
+- Combined eye tracking for unified gaze direction
+
+### Face Tracking
+- **Mouth movements**: smile, frown, dimple, pout
+- **Lip movements**: raise, stretch, press, overturn, suck
+- **Jaw**: position (X/Y/Z) and opening amount
+- **Tongue**: position (X/Y/Z) and roll
+- **Cheek movements**: puff, suck, raise
+- **Facial expressions**: nose wrinkle, chin raise
+
+All parameters are processed in real-time and automatically mapped to Resonite's eye and mouth tracking components.
+
 ## Tested Configurations
 
 | VRCFT Version | Module       | Device              | Tested By |
