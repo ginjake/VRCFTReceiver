@@ -9,9 +9,10 @@ A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoade
 
 1. Install [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader).
 2. Place [VRCFTReceiver.dll](https://github.com/ginjake/VRCFTReceiver/releases/latest/download/VRCFTReceiver.dll) into your `rml_mods` folder. This folder should be at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a default install. You can create it if it's missing, or if you launch the game once with ResoniteModLoader installed it will create the folder for you.
-3. Launch VRCFaceTracking
-4. Start the game. If you want to verify that the mod is working you can check your Resonite logs.
-5. Use the dynamic variables to drive your avatar's blendshapes
+3. vrc-oscquery-lib.dll and MeaMod.DNS.dll to rml_libs folder, you find it where resonite is installed.
+4. Launch VRCFaceTracking
+5. Start the game. If you want to verify that the mod is working you can check your Resonite logs.
+6. Use the dynamic variables to drive your avatar's blendshapes
 
 > [!NOTE]
 > As of v1.0.3, `vrc_parameters.json` template with all the parameters now gets created at `C:\Users\{USER}\AppData\LocalLow\VRChat\VRChat\OSC\vrcft\Avatars` on initial install, so you don't need to copy it over manually anymore. You can edit this file if you wish to change the parameters.
@@ -52,12 +53,12 @@ Then you can use those dynamic variables to drive blendshapes or whatever howeve
 
 > This last part of assigning Dynamic variables to Blendshapes is the most tedious part, so I recommend doing it in Desktop Mode.
 
-Last Tested with [VRCFaceTracking v5.1.1](https://github.com/benaclejames/VRCFaceTracking/releases), Headset: Quest Pro, Virtual Desktop/Local ALXR Modules
+Last Tested with [VRCFaceTracking v5.2.3](https://github.com/benaclejames/VRCFaceTracking/releases), Headset: Varjo Aero, Desktop iFacialMocap
 
 ## Credits
 
-- [Sample Avatar used "Aura" by Meta](https://github.com/oculus-samples/Unity-Movement/tree/main/Samples/Models/Aura)
 - [Based on dfgHiatus's VRCFaceTracking Wrapper Code](https://github.com/dfgHiatus/VRCFT-Module-Wrapper/blob/master/VRCFTModuleWrapper/OSC/VRCFTOSC.cs)
 - [Bunch of help from art0007i](https://github.com/art0007i)
 - [Help from knackrack615](https://github.com/knackrack615)
-- ginjake
+- [ginjake](https://x.com/sirojake)
+
