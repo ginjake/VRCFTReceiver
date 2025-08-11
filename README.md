@@ -9,9 +9,9 @@ A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoade
 
 1. Install [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader).
 2. Place [VRCFTReceiver.dll](https://github.com/ginjake/VRCFTReceiver/releases/latest/download/VRCFTReceiver.dll) into your `rml_mods` folder. This folder should be at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` for a default install. You can create it if it's missing, or if you launch the game once with ResoniteModLoader installed it will create the folder for you.
-3. Launch VRCFaceTracking
-4. Start the game. If you want to verify that the mod is working you can check your Resonite logs.
-5. Use the dynamic variables to drive your avatar's blendshapes
+3. vrc-oscquery-lib.dll and MeaMod.DNS.dll to rml_libs folder, you find it where resonite is installed.
+4. Launch VRCFaceTracking
+5. Start the game. If you want to verify that the mod is working you can check your Resonite logs.
 
 > [!NOTE]
 > As of v1.0.3, `vrc_parameters.json` template with all the parameters now gets created at `C:\Users\{USER}\AppData\LocalLow\VRChat\VRChat\OSC\vrcft\Avatars` on initial install, so you don't need to copy it over manually anymore. You can edit this file if you wish to change the parameters.
@@ -44,20 +44,12 @@ Since we aren't using VRCFT for _VRChat_, we need to get creative and create our
 
 > You can find all of the paramters here at [VRCFT Docs](https://docs.vrcft.io/docs/tutorial-avatars/tutorial-avatars-extras/parameters) (FYI: They aren't exactly 1:1 to the one used for the JSON, might need to look into how some VRC avatars do it or ask in their [Discord](https://discord.com/invite/vrcft), You can find me there as well if you need help)
 
-The rest is pretty straight forward, we just _forward_ all the osc messages as Resonite's ValueStream's. Which is accessible using dynamic variable in this format: `User/{Paramter name}`.
-
-You can find all the dynamic variables in a slot called `VRCFTReceiver` in your User Root.
-
-Then you can use those dynamic variables to drive blendshapes or whatever however you want but you can use my prefab as a template.
-
-> This last part of assigning Dynamic variables to Blendshapes is the most tedious part, so I recommend doing it in Desktop Mode.
-
-Last Tested with [VRCFaceTracking v5.1.1](https://github.com/benaclejames/VRCFaceTracking/releases), Headset: Quest Pro, Virtual Desktop/Local ALXR Modules
+Last Tested with [VRCFaceTracking v5.2.3](https://github.com/benaclejames/VRCFaceTracking/releases), Headset: Varjo Aero, Desktop iFacialMocap,VIVE Focus Vision used ALVR
 
 ## Credits
 
-- [Sample Avatar used "Aura" by Meta](https://github.com/oculus-samples/Unity-Movement/tree/main/Samples/Models/Aura)
 - [Based on dfgHiatus's VRCFaceTracking Wrapper Code](https://github.com/dfgHiatus/VRCFT-Module-Wrapper/blob/master/VRCFTModuleWrapper/OSC/VRCFTOSC.cs)
 - [Bunch of help from art0007i](https://github.com/art0007i)
 - [Help from knackrack615](https://github.com/knackrack615)
-- ginjake
+- [Splittening support by ginjake](https://x.com/sirojake)
+
