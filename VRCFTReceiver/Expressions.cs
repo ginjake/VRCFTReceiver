@@ -67,6 +67,8 @@ namespace VRCFTReceiver
     TongueRoll,
     TongueX,
     TongueY,
+    EyesClosedAmount,
+    CenterPitchYaw,
     Count // Used to determine array size
   }
 
@@ -137,6 +139,8 @@ namespace VRCFTReceiver
     public const string TongueRoll = "/avatar/parameters/v2/TongueRoll";
     public const string TongueX = "/avatar/parameters/v2/TongueX";
     public const string TongueY = "/avatar/parameters/v2/TongueY";
+    public const string EyesClosedAmount = "/tracking/eye/EyesClosedAmount";
+    public const string CenterPitchYaw = "/tracking/eye/CenterPitchYaw";
 
     public static readonly string[] AllAddresses = {
         BrowInnerUpLeft, BrowInnerUpRight, BrowLowererLeft, BrowLowererRight,
@@ -152,7 +156,7 @@ namespace VRCFTReceiver
         MouthRaiserLower, MouthRaiserUpper, MouthSmileLeft, MouthSmileRight, MouthStretchLeft,
         MouthStretchRight, MouthTightenerLeft, MouthTightenerRight, MouthUpperUpLeft,
         MouthUpperUpRight, MouthUpperX, NoseSneerLeft, NoseSneerRight, TongueOut, TongueRoll,
-        TongueX, TongueY
+        TongueX, TongueY, EyesClosedAmount, CenterPitchYaw
     };
 
     private static readonly ExpressionIndex[] _addressToIndex = new ExpressionIndex[(int)ExpressionIndex.Count];
